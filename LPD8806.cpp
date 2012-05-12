@@ -183,38 +183,38 @@ void LPD8806::show(void) {
   delay(pause);
 }
 
-// Convert separate R,G,B into combined 32-bit GRB color:
+// Convert separate R,G,B into combined 24-bit RGB color:
 uint32_t LPD8806::Color(byte r, byte g, byte b) {
-  return 0x808080 | ((uint32_t)g << 16) | ((uint32_t)r << 8) | (uint32_t)b;
+  return ((uint32_t)(g>>1) << 16) | ((uint32_t)(r>>1) << 8) | (uint32_t)(b>>1);
 }
 
-// Set pixel color from separate 7-bit R, G, B components:
+// Set pixel color from separate 8-bit R, G, B components:
 void LPD8806::setPixelColor(uint16_t n, uint8_t r, uint8_t g, uint8_t b) {
   if(n < numLEDs) { // Arrays are 0-indexed, thus NOT '<='
     uint8_t *p = &pixels[n * 3];
-    *p++ = g | 0x80; // LPD8806 color order is GRB,
-    *p++ = r | 0x80; // not the more common RGB,
-    *p++ = b | 0x80; // so the order here is intentional; don't "fix"
+    *p++ = g>>1 | 0x80; // LPD8806 color order is GRB,
+    *p++ = r>>1 | 0x80; // not the more common RGB,
+    *p++ = b>>1 | 0x80; // so the order here is intentional; don't "fix"
   }
 }
 
-// Set pixel color from 'packed' 32-bit RGB value:
+// Set pixel color from 'packed' 24-bit RGB value:
 void LPD8806::setPixelColor(uint16_t n, uint32_t c) {
   if(n < numLEDs) { // Arrays are 0-indexed, thus NOT '<='
     uint8_t *p = &pixels[n * 3];
-    *p++ = (c >> 16) | 0x80;
-    *p++ = (c >>  8) | 0x80;
-    *p++ =  c        | 0x80;
+    *p++ = (c >>  9) | 0x80;
+    *p++ = (c >> 17) | 0x80;
+    *p++ = (c >>  1) | 0x80;
   }
 }
 
-// Query color from previously-set pixel (returns packed 32-bit GRB value)
+// Query color from previously-set pixel (returns packed 24-bit RGB value)
 uint32_t LPD8806::getPixelColor(uint16_t n) {
   if(n < numLEDs) {
     uint16_t ofs = n * 3;
-    return ((uint32_t)((uint32_t)pixels[ofs    ] << 16) |
-            (uint32_t)((uint32_t)pixels[ofs + 1] <<  8) |
-             (uint32_t)pixels[ofs + 2]) & 0x7f7f7f;
+    return (((uint32_t)((uint32_t)pixels[ofs + 1] << 16) |
+            (uint32_t)((uint32_t)pixels[ofs    ] <<  8) |
+             (uint32_t)pixels[ofs + 2]) & 0x7f7f7f) << 1;
   }
 
   return 0; // Pixel # is out of bounds
