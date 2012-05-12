@@ -30,20 +30,20 @@ void setup() {
 
 
 void loop() {
-  colorChase(strip.Color(127,127,127), 10);
+  colorChase(strip.Color(255,255,255), 10);
 
   // Send a simple pixel chase in...
-  colorChase(strip.Color(127,0,0), 10);  	// full brightness red
-  colorChase(strip.Color(127,127,0), 10);	// orange
-  colorChase(strip.Color(0,127,0), 10);		// green
-  colorChase(strip.Color(0,127,127), 10);	// teal
-  colorChase(strip.Color(0,0,127), 10);		// blue
-  colorChase(strip.Color(127,0,127), 10);	// violet
+  colorChase(strip.Color(255,0,0), 10);  	// full brightness red
+  colorChase(strip.Color(255,255,0), 10);	// orange
+  colorChase(strip.Color(0,255,0), 10);		// green
+  colorChase(strip.Color(0,255,255), 10);	// teal
+  colorChase(strip.Color(0,0,255), 10);		// blue
+  colorChase(strip.Color(255,0,255), 10);	// violet
 
   // fill the entire strip with...
-  colorWipe(strip.Color(127,0,0), 10);		// red
-  colorWipe(strip.Color(0, 127,0), 10);		// green
-  colorWipe(strip.Color(0,0,127), 10);		// blue
+  colorWipe(strip.Color(255,0,0), 10);		// red
+  colorWipe(strip.Color(0, 255,0), 10);		// green
+  colorWipe(strip.Color(0,0,255), 10);		// blue
 
   rainbow(10);
   rainbowCycle(0);  // make it go through the cycle fairly fast
@@ -52,9 +52,9 @@ void loop() {
 void rainbow(uint8_t wait) {
   int i, j;
    
-  for (j=0; j < 384; j++) {     // 3 cycles of all 384 colors in the wheel
+  for (j=0; j < 768; j++) {     // 3 cycles of all 768 colors in the wheel
     for (i=0; i < strip.numPixels(); i++) {
-      strip.setPixelColor(i, Wheel( (i + j) % 384));
+      strip.setPixelColor(i, Wheel( (i + j) % 768));
     }  
     strip.show();   // write all the pixels out
     delay(wait);
@@ -66,13 +66,13 @@ void rainbow(uint8_t wait) {
 void rainbowCycle(uint8_t wait) {
   uint16_t i, j;
   
-  for (j=0; j < 384 * 5; j++) {     // 5 cycles of all 384 colors in the wheel
+  for (j=0; j < 768 * 5; j++) {     // 5 cycles of all 768 colors in the wheel
     for (i=0; i < strip.numPixels(); i++) {
-      // tricky math! we use each pixel as a fraction of the full 384-color wheel
+      // tricky math! we use each pixel as a fraction of the full 768-color wheel
       // (thats the i / strip.numPixels() part)
       // Then add in j which makes the colors go around per pixel
-      // the % 384 is to make the wheel cycle around
-      strip.setPixelColor(i, Wheel( ((i * 384 / strip.numPixels()) + j) % 384) );
+      // the % 768 is to make the wheel cycle around
+      strip.setPixelColor(i, Wheel( ((i * 768 / strip.numPixels()) + j) % 768) );
     }  
     strip.show();   // write all the pixels out
     delay(wait);
@@ -114,29 +114,41 @@ void colorChase(uint32_t c, uint8_t wait) {
 
 /* Helper functions */
 
-//Input a value 0 to 384 to get a color value.
-//The colours are a transition r - g -b - back to r
+// Create a 24 bit color value from R,G,B
+uint32_t Color(byte r, byte g, byte b)
+{
+  uint32_t c;
+  c = r;
+  c <<= 8;
+  c |= g;
+  c <<= 8;
+  c |= b;
+  return c;
+}
+
+//Input a value 0 to 767 to get a color value.
+//The colours are a transition r - g - b - back to r
 
 uint32_t Wheel(uint16_t WheelPos)
 {
   byte r, g, b;
-  switch(WheelPos / 128)
+  switch(WheelPos / 256)
   {
     case 0:
-      r = 127 - WheelPos % 128;   //Red down
-      g = WheelPos % 128;      // Green up
-      b = 0;                  //blue off
-      break; 
+      r = 255 - WheelPos % 256; // red down
+      g = WheelPos % 256;       // green up
+      b = 0;                    // blue off
+      break;
     case 1:
-      g = 127 - WheelPos % 128;  //green down
-      b = WheelPos % 128;      //blue up
-      r = 0;                  //red off
-      break; 
+      g = 255 - WheelPos % 256; // green down
+      b = WheelPos % 256;       // blue up
+      r = 0;                    // red off
+      break;
     case 2:
-      b = 127 - WheelPos % 128;  //blue down 
-      r = WheelPos % 128;      //red up
-      g = 0;                  //green off
-      break; 
+      b = 255 - WheelPos % 256; // blue down
+      r = WheelPos % 256;       // red up
+      g = 0;                    // green off
+      break;
   }
-  return(strip.Color(r,g,b));
+  return(Color(r,g,b));
 }

@@ -41,34 +41,34 @@ uint32_t Wheel(uint16_t WheelPos);
 void loop() {
 
   // Send a simple pixel chase in...
-  colorChase(strip.Color(127,127,127), 20); // white
-  colorChase(strip.Color(127,0,0), 20);     // red
-  colorChase(strip.Color(127,127,0), 20);   // yellow
-  colorChase(strip.Color(0,127,0), 20);     // green
-  colorChase(strip.Color(0,127,127), 20);   // cyan
-  colorChase(strip.Color(0,0,127), 20);     // blue
-  colorChase(strip.Color(127,0,127), 20);   // magenta
+  colorChase(strip.Color(255,255,255), 20); // white
+  colorChase(strip.Color(255,0,0), 20);     // red
+  colorChase(strip.Color(255,255,0), 20);   // yellow
+  colorChase(strip.Color(0,255,0), 20);     // green
+  colorChase(strip.Color(0,255,255), 20);   // cyan
+  colorChase(strip.Color(0,0,255), 20);     // blue
+  colorChase(strip.Color(255,0,255), 20);   // magenta
 
   // Fill the entire strip with...
-  colorWipe(strip.Color(127,0,0), 20);      // red
-  colorWipe(strip.Color(0, 127,0), 20);     // green
-  colorWipe(strip.Color(0,0,127), 20);      // blue
+  colorWipe(strip.Color(255,0,0), 20);      // red
+  colorWipe(strip.Color(0, 255,0), 20);     // green
+  colorWipe(strip.Color(0,0,255), 20);      // blue
   colorWipe(strip.Color(0,0,0), 20);        // black
 
   // Color sparkles
-  dither(strip.Color(0,127,127), 50);       // cyan, slow
+  dither(strip.Color(0,255,255), 50);       // cyan, slow
   dither(strip.Color(0,0,0), 15);           // black, fast
-  dither(strip.Color(127,0,127), 50);       // magenta, slow
+  dither(strip.Color(255,0,255), 50);       // magenta, slow
   dither(strip.Color(0,0,0), 15);           // black, fast
-  dither(strip.Color(127,127,0), 50);       // yellow, slow
+  dither(strip.Color(255,255,0), 50);       // yellow, slow
   dither(strip.Color(0,0,0), 15);           // black, fast
 
   // Back-and-forth lights
-  scanner(127,0,0, 30);        // red, slow
-  scanner(0,0,127, 15);        // blue, fast
+  scanner(255,0,0, 30);        // red, slow
+  scanner(0,0,255, 15);        // blue, fast
 
   // Wavy ripple effects
-  wave(strip.Color(127,0,0), 4, 20);        // candy cane
+  wave(strip.Color(255,0,0), 4, 20);        // candy cane
   wave(strip.Color(0,0,100), 2, 40);        // icy
 
   // make a pretty rainbow cycle!
@@ -84,13 +84,13 @@ void loop() {
 void rainbowCycle(uint8_t wait) {
   uint16_t i, j;
 
-  for (j=0; j < 384 * 5; j++) {     // 5 cycles of all 384 colors in the wheel
+  for (j=0; j < 768 * 5; j++) {     // 5 cycles of all 768 colors in the wheel
     for (i=0; i < strip.numPixels(); i++) {
-      // tricky math! we use each pixel as a fraction of the full 384-color
+      // tricky math! we use each pixel as a fraction of the full 768-color
       // wheel (thats the i / strip.numPixels() part)
       // Then add in j which makes the colors go around per pixel
-      // the % 384 is to make the wheel cycle around
-      strip.setPixelColor(i, Wheel(((i * 384 / strip.numPixels()) + j) % 384));
+      // the % 768 is to make the wheel cycle around
+      strip.setPixelColor(i, Wheel(((i * 768 / strip.numPixels()) + j) % 768));
     }
     strip.show();   // write all the pixels out
     delay(wait);
@@ -197,9 +197,9 @@ void wave(uint32_t c, int cycles, uint8_t wait) {
   byte  r, g, b, r2, g2, b2;
 
   // Need to decompose color into its r, g, b elements
-  g = (c >> 16) & 0x7f;
-  r = (c >>  8) & 0x7f;
-  b =  c        & 0x7f; 
+  g = (c >> 16) & 0xff;
+  r = (c >>  8) & 0xff;
+  b =  c        & 0xff; 
 
   for(int x=0; x<(strip.numPixels()*5); x++)
   {
@@ -208,9 +208,9 @@ void wave(uint32_t c, int cycles, uint8_t wait) {
       if(y >= 0.0) {
         // Peaks of sine wave are white
         y  = 1.0 - y; // Translate Y to 0.0 (top) to 1.0 (center)
-        r2 = 127 - (byte)((float)(127 - r) * y);
-        g2 = 127 - (byte)((float)(127 - g) * y);
-        b2 = 127 - (byte)((float)(127 - b) * y);
+        r2 = 255 - (byte)((float)(255 - r) * y);
+        g2 = 255 - (byte)((float)(255 - g) * y);
+        b2 = 255 - (byte)((float)(255 - b) * y);
       } else {
         // Troughs of sine wave are black
         y += 1.0; // Translate Y to 0.0 (bottom) to 1.0 (center)
@@ -227,29 +227,41 @@ void wave(uint32_t c, int cycles, uint8_t wait) {
 
 /* Helper functions */
 
-//Input a value 0 to 384 to get a color value.
+// Create a 24 bit color value from R,G,B
+uint32_t Color(byte r, byte g, byte b)
+{
+  uint32_t c;
+  c = r;
+  c <<= 8;
+  c |= g;
+  c <<= 8;
+  c |= b;
+  return c;
+}
+
+//Input a value 0 to 767 to get a color value.
 //The colours are a transition r - g - b - back to r
 
 uint32_t Wheel(uint16_t WheelPos)
 {
   byte r, g, b;
-  switch(WheelPos / 128)
+  switch(WheelPos / 256)
   {
     case 0:
-      r = 127 - WheelPos % 128; // red down
-      g = WheelPos % 128;       // green up
+      r = 255 - WheelPos % 256; // red down
+      g = WheelPos % 256;       // green up
       b = 0;                    // blue off
       break;
     case 1:
-      g = 127 - WheelPos % 128; // green down
-      b = WheelPos % 128;       // blue up
+      g = 255 - WheelPos % 256; // green down
+      b = WheelPos % 256;       // blue up
       r = 0;                    // red off
       break;
     case 2:
-      b = 127 - WheelPos % 128; // blue down
-      r = WheelPos % 128;       // red up
+      b = 255 - WheelPos % 256; // blue down
+      r = WheelPos % 256;       // red up
       g = 0;                    // green off
       break;
   }
-  return(strip.Color(r,g,b));
+  return(Color(r,g,b));
 }

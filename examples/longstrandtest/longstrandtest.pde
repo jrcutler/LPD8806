@@ -34,10 +34,10 @@ void setup() {
 }
 
 void loop() {
-  colorChase(strip.Color(127,  0,  0), 100); // Red
-  colorChase(strip.Color(  0,127,  0), 100); // Green
-  colorChase(strip.Color(  0,  0,127), 100); // Blue
-  colorChase(strip.Color(127,127,127), 100); // White
+  colorChase(strip.Color(255,  0,  0), 100); // Red
+  colorChase(strip.Color(  0,255,  0), 100); // Green
+  colorChase(strip.Color(  0,  0,255), 100); // Blue
+  colorChase(strip.Color(255,255,255), 100); // White
 }
 
 // Chase one dot down the full strip.  Good for testing purposes.

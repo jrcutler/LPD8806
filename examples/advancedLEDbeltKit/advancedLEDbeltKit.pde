@@ -431,7 +431,7 @@ PROGMEM prog_uchar gammaTable[]  = {
 // folks before even getting into the real substance of the program, and
 // the compiler permits forward references to functions but not data.
 inline byte gamma(byte x) {
-  return pgm_read_byte(&gammaTable[x]);
+  return pgm_read_byte(&gammaTable[x])<<1;
 }
 
 // Fixed-point colorspace conversion: HSV (hue-saturation-value) to RGB.
